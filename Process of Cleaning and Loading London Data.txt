@@ -1,16 +1,25 @@
 
+**This documentation was created by Todd Hugie on 1/01/2019.  This document shows the steps required for taking the initial “everything” file and running it through the various parsing and data cleanup programs.  It gives steps for extracting data out of the author and works file for upload to the database.  It gives the steps for loading events, cast, asdate, and performance tables to the database.  It shows what keys need to be created in the database for the searches to properly work.
+
+
+Jupiter Notebook is a  development and testing environment for code development. This once the program has been downloaded and installed, this command shows how to start it. Run it from the unix command line. 
 
 jupyter notebook --NotebookApp.iopub_data_rate_limit=10000000
 
-Import re, string,  etc
+The import commands allow for using certain python functions
+import re, string,  etc
+import csv, re, datetime, string, pandas
+import pandas as season
 
 
 
-Updated 11/20/2018
+Updated 05/17/2019
 
- File Modified_everything_1-17-18.txt is the file to first start with.  
-We’ve updated that file with some fixes but it doesn’t include the Hathi trust records that we found weren’t in the file above so we manually had to put them in.
-3.  The Modified_everything_11-20-18_with_HathiAddtions_commentsCombinded.txt is the file that we start from.  It has everything that the 1-17-18 file has along with the Hathi and data fixes.
+ File Modified_everything_1-17-18.txt is the file to first start with.
+
+We’ve updated that file with some fixes but it doesn’t include the Hathi trust records that we found weren’t in the file above so we manually had to put them in.  Also, we combined and included records from the modified_everything_1-17-18.txt file as *z records all into one file, the file number step 3 below.  
+
+3.  The modified_everything_02-06-19_withOrigDataHathiFixed.txt is the file that we start from.  It has everything that the 1-17-18 file has along with the Hathi and data fixes and the *z records which we call phase I records.  
 
 NOTE:  If more manual records need to be added then add them into a separate file.  Then run them through ocr_fix_11-19-18.py (Derek’s program) which will add the other * records if you only put in the *P record.   If your manual file contains all the other * records you don’t need to go through Derek’s program.
 
@@ -18,15 +27,16 @@ Take the output from the above process and run it through Modified_with_Hathi_Ad
 
 Then manually add your new record into the file in number 3.
 
-4. Take the Modified_everything_11-20-18_with_HathiAddtions_commentsCombinded.txt and run it through londonFormatEverythingJun112018.py program.  
+4. Take the modified_everything_02-06-19_withOrigDataHathiFixed.txt and run it through LondonFormatEverythingMay112019.py program.  
 
-5.  Take the output from number 4 above which will be called LondonFinal.txt and run it through LondonLoadDatabaeOctoberOthers.py which will be the files that are imported to the database.
+5.  Take the output from number 4 above which will be called LondonFinal.txt and run it through LondonLoadDatabaeMay2019Others.py which will be the files that are imported to the database.
 Those files are asdata.txt,    cast.txt,   performances.txt,   events.txt.
+Note:  During the execution of LondonLoadDatabaseMay2019Others.py there is a new record called the *x record.  This record is the phase II data.  So the *z record is the phase I data and the *x is the phase II data.  We load these into the database and the web programs creates a carousel which shows the research the different levels of data.
 
 6.  Upload the Events, Performance, Cast, and AsSeeDate data.  
- *WHEN IMPORTING these tables the format should be CSV, then put | (pipe) in the Columns separated with box, blank out columns enclosed with and columns escaped with.  Make sure to have no blank space. If its not there already, put Auto in Lines terminated with.
-	a.  First delete data in these tables.
-	b.  In the Events table delete the field called TheatreId.  After the table is loaded with the import 				command create this field as an index.  This field will be filled in later in this document 				with SQL.
+ *WHEN IMPORTING these tables the format should be CSV, then put | (pipe) in the Columns separated with box, blank out columns enclosed with and columns escaped with.  Make sure to have no blank space. If it’s not there already, put Auto in Lines terminated with.
+	a.  First delete data in these the cast, events, perfomance, asseedate in the database tables.
+	b.  In the Events table delete the field called TheatreId.  After the table is loaded with the import 				command create this field as an index.  This field will be filled in later in this document 				with SQL.  Below you will see the SQL to do this.  
 	c.  In the Cast table after deleting the data, delete the field called CastId..
 		Then load the table using the import command.  Then recreate the CastId as a 
 		the primary index and click on the auto increment box.
@@ -37,14 +47,26 @@ Those files are asdata.txt,    cast.txt,   performances.txt,   events.txt.
 
 7.  Once files are uploaded run the ladder.py program which creates the proper date ladder in the database.
 
+8.  NEED TO CREATE Theatre unique ID into Events table for better linking to get theatre name.
+
+UPDATE Events
+INNER JOIN Theatre ON Theatre.TheatreCode = Events.TheatreCode 
+SET Events.TheatreId = Theatre.TheatreId
+WHERE Events.TheatreCode = Theatre.TheatreCode
+AND Events.Volume = Theatre.Volume
+
+
+
+
+
 
 
 
 After all the above, then do everything below here.
 
-1.  To Import Author
+	  To Import Author
 
- Go into LibrOffice
+ Go into LibrOffice or a similar program that will allow the changing of an spreadsheet and saving it to a text csv file
 
 2.  Delete the Works sheet.  In the Author sheet delete the VariantName column. 
 	Delete the titles of each column before doing the next step or the column numbers will be off by 
@@ -199,6 +221,8 @@ WHERE
 
 THEN DELETE all WorkAuthMaster that have an AuthId of 0
 
+SAVING FILE AS text CSV
+
 Here’s how to save file in LibrOffice with comma delimited field and Quote delimited for proper import into mysql
 
 Do File SaveAs
@@ -224,6 +248,12 @@ Then pick this for the next screen.  After saving it should save in proper forma
 
 
 
+
+
+
+
+
+To import all files into MYSQL or MariaDB do this.
 
 To import into mysql do this.   Look at Columns separated with: 
 Columns enclosed with:
@@ -260,57 +290,20 @@ Also, the format is CSV
 
 
 
-NEED TO CREATE Theatre unique ID into Events table for better linking
-
-SELECT * FROM Theatre a, Events b where a.TheatreCode = b.TheatreCode AND a.Volume = b.Volume
-
-
-THIS QUERY SHOWS THE THEATRES that are in Events but not in Theatre table
-
-select EventDate, TheatreCode, CommentC from Events where Events.TheatreCode 
-NOT IN (select TheatreCode from Theatre)
-Order by EventDate
-
-
-
-select a.EventDate, a.TheatreCode, b.PerformanceTitle from Events a, Performances b where a.EventId = b.EventId AND a.TheatreCode NOT IN (select TheatreCode from Theatre) Order by a.EventDate
-
-
-USE THIS ONE TO FIND BAD THEATRES
-
-select Events.EventId, EventDate, TheatreCode, PerformanceTitle, CommentC from Events, Performances where Events.TheatreCode NOT IN (select TheatreCode from Theatre) AND Performances.EventId = Events.EventId and Performances.PType = "P" Order by EventDate
-
-
-UPDATE
-    Theatre
-SET
-    TheatreCode = "ACA"   
-where 
-    TheatreCode = "Academy" and Volume = 3 
-
-10.  Create the column TheatreID in the Performance Table.
-
-THIS IS THE SQL THAT WILL UPDATE THE TheatreID in the Performances table with the TheatreID from the Theatre table.     THE SECOND ONE DOES EVENTS TABLE.   WE DECIDED to do the Event table instead of the Performance table.
-
-UPDATE Performances
-INNER JOIN Events ON Events.EventId = Performances.EventId
-INNER JOIN Theatre ON Theatre.TheatreCode = Events.TheatreCode 
-SET Performances.TheatreId = Theatre.TheatreId
-WHERE Events.TheatreCode = Theatre.TheatreCode
-AND Events.Volume = Theatre.Volume
-
-
-
-UPDATE Events
-INNER JOIN Theatre ON Theatre.TheatreCode = Events.TheatreCode 
-SET Events.TheatreId = Theatre.TheatreId
-WHERE Events.TheatreCode = Theatre.TheatreCode
-AND Events.Volume = Theatre.Volume
 
 
 
 
-TO GET SEASONS DO THE FOLLOWING
+
+
+
+
+
+
+
+
+
+TO GET SEASONS DO THE FOLLOWING.  The LondonLoadDatabaseMayOthersZ.py program has this Pandas function to help determine the correct season and volume for each event record.  
 
  Setup a structure called a Pandas
 
@@ -362,6 +355,18 @@ tr -d “\r\n” <z.txt>outfile.txt
 
 TAKE SPECIAL CHARACTERS OUT OF CERTAIN FIELDS FOR BETTER SEARCHING
 This removes the , from performance title with a space into a new field called PerfTitleClean
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -466,4 +471,42 @@ UPDATE Events
 
 UPDATE Performances
   SET 
-      CommentPClean = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(CommentPClean, ',', ''), "'", ''), '!', ''), '+', ''), '%', ''), '#', ''), '&', ''), '*', ''), ')', ''), '$', ''), '@', ''), '~', ''), '?', ''), '{', ''), '}', ''), '^', ''), '<', ''), '>', ''), ':', ''), '/', ''), '=', ''), ']', ''), '_', ' '), '`', ''), '.', ''), '"', ''), "'\'", ''), '-', ' '), "')'", ''), '|', ''), ';', ''), '[', '');
+      CommentPClean = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(CommentPClean, ',', ''), "'", ''), '!', ''), '+', ''), '%', ''), '#', ''), '&', ''), '*', ''), ')', ''), '$', ''), '@', ''), '~', ''), '?', ''), '{', ''), '}', ''), '^', ''), '<', ''), '>', ''), ':', ''), '/', ''), '=', ''), ']', ''), '_', ' '), '`', ''), '.', ''), '"', ''), "'\'", ''), '-', ' '), "')'", ''), '|', ''), ';', ''), '[', ‘');
+
+
+
+
+
+
+NOTE:  Only did this one time to help clean up data.  
+
+THIS QUERY SHOWS THE THEATRES that are in Events but not in Theatre table.  We did this initially to help clean the data.  We had theaters showing in up in events but there was no corresponding code in the theatre table.  
+
+select EventDate, TheatreCode, CommentC from Events where Events.TheatreCode 
+NOT IN (select TheatreCode from Theatre)
+Order by EventDate
+
+
+
+select a.EventDate, a.TheatreCode, b.PerformanceTitle from Events a, Performances b where a.EventId = b.EventId AND a.TheatreCode NOT IN (select TheatreCode from Theatre) Order by a.EventDate
+
+
+
+
+
+
+USE THIS ONE TO FIND BAD THEATRES
+
+select Events.EventId, EventDate, TheatreCode, PerformanceTitle, CommentC from Events, Performances where Events.TheatreCode NOT IN (select TheatreCode from Theatre) AND Performances.EventId = Events.EventId and Performances.PType = "P" Order by EventDate
+
+
+UPDATE
+    Theatre
+SET
+    TheatreCode = "ACA"   
+where 
+    TheatreCode = "Academy" and Volume = 3 
+
+
+
+
