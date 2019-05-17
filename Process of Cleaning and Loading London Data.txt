@@ -1,0 +1,469 @@
+
+
+jupyter notebook --NotebookApp.iopub_data_rate_limit=10000000
+
+Import re, string,  etc
+
+
+
+Updated 11/20/2018
+
+ File Modified_everything_1-17-18.txt is the file to first start with.  
+We’ve updated that file with some fixes but it doesn’t include the Hathi trust records that we found weren’t in the file above so we manually had to put them in.
+3.  The Modified_everything_11-20-18_with_HathiAddtions_commentsCombinded.txt is the file that we start from.  It has everything that the 1-17-18 file has along with the Hathi and data fixes.
+
+NOTE:  If more manual records need to be added then add them into a separate file.  Then run them through ocr_fix_11-19-18.py (Derek’s program) which will add the other * records if you only put in the *P record.   If your manual file contains all the other * records you don’t need to go through Derek’s program.
+
+Take the output from the above process and run it through Modified_with_Hathi_Aditions.py which appends |hathi| on the end of each record.
+
+Then manually add your new record into the file in number 3.
+
+4. Take the Modified_everything_11-20-18_with_HathiAddtions_commentsCombinded.txt and run it through londonFormatEverythingJun112018.py program.  
+
+5.  Take the output from number 4 above which will be called LondonFinal.txt and run it through LondonLoadDatabaeOctoberOthers.py which will be the files that are imported to the database.
+Those files are asdata.txt,    cast.txt,   performances.txt,   events.txt.
+
+6.  Upload the Events, Performance, Cast, and AsSeeDate data.  
+ *WHEN IMPORTING these tables the format should be CSV, then put | (pipe) in the Columns separated with box, blank out columns enclosed with and columns escaped with.  Make sure to have no blank space. If its not there already, put Auto in Lines terminated with.
+	a.  First delete data in these tables.
+	b.  In the Events table delete the field called TheatreId.  After the table is loaded with the import 				command create this field as an index.  This field will be filled in later in this document 				with SQL.
+	c.  In the Cast table after deleting the data, delete the field called CastId..
+		Then load the table using the import command.  Then recreate the CastId as a 
+		the primary index and click on the auto increment box.
+	d.  In the Performance table after deleting the data delete the field called WorkId.  
+		Then load the table using the import command.  Then recreate the WorkId as
+		a 6 integer and as an index.  This field will be filled in later with sql once the
+		work tables are created.
+
+7.  Once files are uploaded run the ladder.py program which creates the proper date ladder in the database.
+
+
+
+
+After all the above, then do everything below here.
+
+1.  To Import Author
+
+ Go into LibrOffice
+
+2.  Delete the Works sheet.  In the Author sheet delete the VariantName column. 
+	Delete the titles of each column before doing the next step or the column numbers will be off by 
+		one.
+
+2.  Click on the Name Column and click on insert.  This will insert a column to the left.
+
+3.  In the 1st cell put 1, in the second put 2,  then highlight both.  You’ll see a box around both with a little square in the bottom right corner.  Click on it and drag to end.  It will auto increment column.
+
+4. Open in LibrOffice and save as cvs with quoted and comma
+Pick CSV file
+Put , in Columns Separate with:
+Put “ in Columns enclosed with:
+Delete whatever is in Columns escaped with:
+
+2.  Do the same for the Author Variant file
+	For Example:  For Variant File 1.  Delete all columns but Variant 1.
+	Create the ID field from beginning to end.
+	Delete the empty rows.  Sort by column b and it will put all blank rows at bottom then delete
+
+So you end up with the AuthorID and the Variant Name, only 2 fields in the file.
+
+	Create Variant file 2.  Do same as Variant file 1.  Then copy variant file 2 into variant file 
+	2.  Then sort so keys are sequentially.
+	Do for Variant file 3 and variant file 4.
+
+3.  To import Works. (Do similar things as we did for author above)
+ Go into LibrOffice or Excel
+
+2.  Delete all the fields not associated with works.
+
+So keep all but the Author1, Author2, and the other variant titles. 
+
+3.  Click on the type column and click on insert.  This will insert a column to the left.
+
+4.  In the 1st cell put 1, in the second put 2,  then highlight both.  You’ll see a box around both with a little square in the bottom right corner.  Click on it and drag to end.  It will auto increment column.
+
+5. Save as cvs with , and “   There is a Google page that shows how to save quoted fields in LibrOffice and OpenOffice
+
+Pick CSV file
+Put , in Columns Separate with:
+Put “ in Columns enclosed with:
+Delete whatever is in Columns escaped with:
+
+NOTE:  Don’t have a URL field because nothing is in it.  Once the table is filled with data just add the url field.
+4.  Create 4 Works Variant Files
+	These just have the variant name and then the key ID.  
+	For Example:  For Variant File 1.  Delete all columns but Variant 1.
+	Create the ID field from beginning to end.
+	Delete the empty rows.
+
+	Create Variant file 2.  Do same as Variant file 1.  Then copy variant file 2 into variant file 
+	2.  Then sort so keys are sequentially.
+	Do for Variant file 3 and variant file 4.
+
+5.  To import WorkAuthMaster
+ Go into excel
+
+2.  Keep title from the works spreadsheet
+
+3.  Click on the type column and click on insert.  This will insert a column to the left.
+
+4.  In the 1st cell put 1, in the second put 2,  then highlight both.  You’ll see a box around both with a little square in the bottom right corner.  Click on it and drag to end.  It will auto increment column.
+
+NOTE:  The WorkId number should match the same number in the Works table.  This is important
+
+5. Save as comma delimited surround by quotes,  CVS as text.  LIBROFFICE
+
+6.  Import into database.  Pick CSV file
+Put , in Columns Separate with:
+Put “ in Columns enclosed with:
+Delete whatever is in Columns escaped with:
+
+6.  Performance Table
+
+ Add WorkId as a field in performance table.   Make sure collation is the same between the Title of WorkAuthMater and this new field.
+
+
+NOTE:  MIGHT NEED TO DO AGAINST THE WORKS TABLE TOO.  DO THAT ONE LAST
+2.  Run this query,
+
+UPDATE
+	Performances p, 				
+    	WorkAuthMaster w
+SET
+	p.WorkId = w.WorkId   
+where 
+	p.PerformanceTitle = w.Title
+
+ALSO THIS NEEDS TO BE PERFORMED against the WorksVariant table since the title in the performance may be the same as a variant title and not the one in the Performance table.
+
+UPDATE
+	Performances p, 
+    	WorksVariant w
+SET
+	p.WorkId = w.WorkId   
+where 
+	p.PerformanceTitle = w.VariantName
+
+
+ALSO DO THE WORKS TABLE
+UPDATE
+	Performances p, 
+    	Works w
+SET
+	p.WorkId = w.WorkId   
+where 
+	p.PerformanceTitle = w.Title
+
+
+
+7.  Now we have to update the author key in the WorkAuthorMaster.
+
+ ADD AuthID in the WorkAuthMaster file.
+
+Open the spreadsheet and delete all columns but title and FIRST author.   KEEP BLANK AUTHORS. It is important to have the row numbers match what’s in the WorkAuthMaster   
+
+2.  Click on the type column and click on insert.  This will insert a column to the left.
+
+3.  In the 1st cell put 1, in the second put 2,  then highlight both.  You’ll see a box around both with a little square in the bottom right corner.  Click on it and drag end.  It will auto increment.
+
+4.  TAKE OUT COMMAs OF THE TITLE AND AUTHOR FIELDS
+
+5.  Export into CVS
+
+6.  In Database create a table called AuthTemp1 or something like that
+
+7.  Import the CVS from step 5 into this table of the database
+Pick CSV file
+Put , in Columns Separate with:
+Put “ in Columns enclosed with:
+Delete whatever is in Columns escaped with:
+
+Reopen the new WorksAuthor file that was just created.  Sort by the Author name, then delete any rows that don’t have an author name in them.
+
+8.  Run this query to update WorkAuthMaster file.  Run the Update portion below.  The select just shows how to do it.
+
+
+9.  REPEAT STEPS 1-8 for the Author 2 and author 3 fields in the spreadsheet from the works sheet.  
+
+10.  Then combine all three spreadsheets into one.  So all three author fields will be shown in the table as one author field, but there can be duplicate keys because one title can have three authors.
+I just copy and paste from one to the other.
+
+THIS IS THE CODE TO UPDATE. (IMPORTANT TO KEEP THINGS IN THIS ORDER in the insert and select)
+
+INSERT INTO WorkAuthMaster  (WorkId, Title, AuthId)
+SELECT  w.WorkId, w.Title, u.AuthId
+FROM	AuthTemp1 a, WorkAuthMaster w, Author u
+		
+WHERE
+	a.AuthName=u.AuthName and w.WorkID = A.WorkId
+
+THEN DELETE all WorkAuthMaster that have an AuthId of 0
+
+Here’s how to save file in LibrOffice with comma delimited field and Quote delimited for proper import into mysql
+
+Do File SaveAs
+
+
+
+
+
+Then pick this for the next screen.  After saving it should save in proper format.  Look at next section for import into mysql.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+To import into mysql do this.   Look at Columns separated with: 
+Columns enclosed with:
+Columns escaped with:
+Also, the format is CSV
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+NEED TO CREATE Theatre unique ID into Events table for better linking
+
+SELECT * FROM Theatre a, Events b where a.TheatreCode = b.TheatreCode AND a.Volume = b.Volume
+
+
+THIS QUERY SHOWS THE THEATRES that are in Events but not in Theatre table
+
+select EventDate, TheatreCode, CommentC from Events where Events.TheatreCode 
+NOT IN (select TheatreCode from Theatre)
+Order by EventDate
+
+
+
+select a.EventDate, a.TheatreCode, b.PerformanceTitle from Events a, Performances b where a.EventId = b.EventId AND a.TheatreCode NOT IN (select TheatreCode from Theatre) Order by a.EventDate
+
+
+USE THIS ONE TO FIND BAD THEATRES
+
+select Events.EventId, EventDate, TheatreCode, PerformanceTitle, CommentC from Events, Performances where Events.TheatreCode NOT IN (select TheatreCode from Theatre) AND Performances.EventId = Events.EventId and Performances.PType = "P" Order by EventDate
+
+
+UPDATE
+    Theatre
+SET
+    TheatreCode = "ACA"   
+where 
+    TheatreCode = "Academy" and Volume = 3 
+
+10.  Create the column TheatreID in the Performance Table.
+
+THIS IS THE SQL THAT WILL UPDATE THE TheatreID in the Performances table with the TheatreID from the Theatre table.     THE SECOND ONE DOES EVENTS TABLE.   WE DECIDED to do the Event table instead of the Performance table.
+
+UPDATE Performances
+INNER JOIN Events ON Events.EventId = Performances.EventId
+INNER JOIN Theatre ON Theatre.TheatreCode = Events.TheatreCode 
+SET Performances.TheatreId = Theatre.TheatreId
+WHERE Events.TheatreCode = Theatre.TheatreCode
+AND Events.Volume = Theatre.Volume
+
+
+
+UPDATE Events
+INNER JOIN Theatre ON Theatre.TheatreCode = Events.TheatreCode 
+SET Events.TheatreId = Theatre.TheatreId
+WHERE Events.TheatreCode = Theatre.TheatreCode
+AND Events.Volume = Theatre.Volume
+
+
+
+
+TO GET SEASONS DO THE FOLLOWING
+
+ Setup a structure called a Pandas
+
+import re, string, pandas 
+datin = "1659 11 03"
+LondonList = [['1659 10 29','city','1660 09 13','sf', '1659-1660'], 
+             ['1660 09 13','none','1661 09 05','sf', '1660-1661'],
+             ['1661 09 06', 'vere', '1662 08 23', 'thames', '1661-1662']]
+print (LondonList)
+
+x= pandas.DataFrame(LondonList, columns = ['Year', 'Theatre1', 'year2', 'Theatre2', ‘Season'])
+
+print (LondonList[2])
+print (LondonList[2][0])
+print(x)
+
+x['Year'] == '1958-1959'
+
+x[x['Year'] > datin]
+
+
+
+WORKING WITH SEASON DATA
+
+Here’s how to change the Season Worksheet into a Pandas Dataframe in Python
+
+1.  Open the spreadsheet
+2.  Now you want to split the first date with the theatre code and put theatre code into it’s own column.
+	Click on the first data column.
+	Then insert field to the right.
+	Then highlight column again and click the Data tab then click Text to Columns
+	Click the Fixed width radio button under Separators Options.
+	A little window pops up at the bottom of the window with a red button and line under it.
+	Put that button between date and theatre code then click ok.  It will place theatre in the new 
+		column.
+	Do the same for the ending data with the theatre.
+	Create a new column at the beginning and put [ in all the rows, at the end put ] in a new column.
+	Save as a CSV file with quoted fields and comma between fields
+	Open back up the file.  It should have all the fields with quotes. 
+	The first field will look like “[“, so do a mass replace to change it to [, same with last field.
+	Save and open in text edit and it should look good.  Copy and paste into python program.
+
+ tr `\n` `\r` < z.txt > macfile.txt
+
+tr -d “\r\n" <z.txt >outfile.txt
+
+tr -d “\r\n” <z.txt>outfile.txt
+
+
+TAKE SPECIAL CHARACTERS OUT OF CERTAIN FIELDS FOR BETTER SEARCHING
+This removes the , from performance title with a space into a new field called PerfTitleClean
+
+
+
+For these columns, please replace all dashes and underscores with a single space, and then remove all other special characters EXCEPT semicolons. 
+
+
+
+
+
+
+For these columns, please replace all dashes and underscores with a single space, and then remove all other special characters (including semicolons).
+
+
+
+
+! “ # $ % & ‘ ( ) * + , - _ . / : < > = ? @ ~ ` ^ { } [ ]  \ 
+
+NOTE:  The first four new fields in the table above don’t remove ; semicolons.
+	The next four remove everything including semicolons.
+             The last two remove the HTML codes first then everything else.
+
+For each of the Tables add the new cleaned field.  Then update this field as show above in the table.   For example for Performances it’s PerfTitleClean
+
+ALTER TABLE Performances
+  ADD PerfTitleClean TEXT;
+
+ALTER TABLE Performances
+  ADD CommentPClean TEXT;
+
+ALTER TABLE Events
+  ADD CommentCClean TEXT;
+
+ALTER TABLE Author
+  ADD AuthNameClean VARCHAR(50);
+ 
+
+ALTER TABLE AuthorVariant
+  ADD VarNameClean VARCHAR(50);
+
+
+ALTER TABLE Cast
+  ADD RoleClean VARCHAR(50);
+
+ALTER TABLE Cast
+  ADD PerformerClean TEXT;
+
+ALTER TABLE WorkAuthMaster
+  ADD TitleClean Text;
+
+ALTER TABLE Works
+  ADD TitleClean Text;
+
+ALTER TABLE WorksVariant
+  ADD NameClean VARCHAR(50);
+
+UPDATE Performances
+  SET 
+      PerfTitleClean = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(PerformanceTitle, ',', ''), "'", ''), '!', ''), '+', ''), '%', ''), '#', ''), '&', ''), '*', ''), ')', ''), '$', ''), '@', ''), '~', ''), '?', ''), '{', ''), '}', ''), '^', ''), '<', ''), '>', ''), ':', ''), '/', ''), '=', ''), ']', ''), '_', ' '), '`', ''), '.', ''), '"', ''), "'\'", ''), '-', ' '), "')'", ''), '|', ''), '[', '');
+
+UPDATE WorkAuthMaster
+  SET 
+      TitleClean = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(Title, ',', ''), "'", ''), '!', ''), '+', ''), '%', ''), '#', ''), '&', ''), '*', ''), ')', ''), '$', ''), '@', ''), '~', ''), '?', ''), '{', ''), '}', ''), '^', ''), '<', ''), '>', ''), ':', ''), '/', ''), '=', ''), ']', ''), '_', ' '), '`', ''), '.', ''), '"', ''), "'\'", ''), '-', ' '), "')'", ''), '|', ''), '[', '');
+      
+UPDATE Works
+  SET 
+      TitleClean = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(Title, ',', ''), "'", ''), '!', ''), '+', ''), '%', ''), '#', ''), '&', ''), '*', ''), ')', ''), '$', ''), '@', ''), '~', ''), '?', ''), '{', ''), '}', ''), '^', ''), '<', ''), '>', ''), ':', ''), '/', ''), '=', ''), ']', ''), '_', ' '), '`', ''), '.', ''), '"', ''), "'\'", ''), '-', ' '), "')'", ''), '|', ''), '[', '');
+      
+UPDATE WorksVariant
+  SET 
+      NameClean = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(VariantName, ',', ''), "'", ''), '!', ''), '+', ''), '%', ''), '#', ''), '&', ''), '*', ''), ')', ''), '$', ''), '@', ''), '~', ''), '?', ''), '{', ''), '}', ''), '^', ''), '<', ''), '>', ''), ':', ''), '/', ''), '=', ''), ']', ''), '_', ' '), '`', ''), '.', ''), '"', ''), "'\'", ''), '-', ' '), "')'", ''), '|', ''), '[', '');  
+ 
+UPDATE Author
+  SET 
+      AuthNameClean = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(AuthName, ',', ''), "'", ''), '!', ''), '+', ''), '%', ''), '#', ''), '&', ''), '*', ''), ')', ''), '$', ''), '@', ''), '~', ''), '?', ''), '{', ''), '}', ''), '^', ''), '<', ''), '>', ''), ':', ''), '/', ''), '=', ''), ']', ''), '_', ' '), '`', ''), '.', ''), '"', ''), "'\'", ''), '-', ' '), "')'", ''), '|', ''), ';', ''), '[', ''); 
+      
+UPDATE AuthorVariant
+  SET 
+      VarNameClean = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(VariantName, ',', ''), "'", ''), '!', ''), '+', ''), '%', ''), '#', ''), '&', ''), '*', ''), ')', ''), '$', ''), '@', ''), '~', ''), '?', ''), '{', ''), '}', ''), '^', ''), '<', ''), '>', ''), ':', ''), '/', ''), '=', ''), ']', ''), '_', ' '), '`', ''), '.', ''), '"', ''), "'\'", ''), '-', ' '), "')'", ''), '|', ''), ';', ''), '[', '');  
+      
+UPDATE Cast
+  SET 
+      RoleClean = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(Role, ',', ''), "'", ''), '!', ''), '+', ''), '%', ''), '#', ''), '&', ''), '*', ''), ')', ''), '$', ''), '@', ''), '~', ''), '?', ''), '{', ''), '}', ''), '^', ''), '<', ''), '>', ''), ':', ''), '/', ''), '=', ''), ']', ''), '_', ' '), '`', ''), '.', ''), '"', ''), "'\'", ''), '-', ' '), "')'", ''), '|', ''), ';', ''), '[', '');   
+      
+UPDATE Cast
+  SET 
+      PerformerClean = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(Performer, ',', ''), "'", ''), '!', ''), '+', ''), '%', ''), '#', ''), '&', ''), '*', ''), ')', ''), '$', ''), '@', ''), '~', ''), '?', ''), '{', ''), '}', ''), '^', ''), '<', ''), '>', ''), ':', ''), '/', ''), '=', ''), ']', ''), '_', ' '), '`', ''), '.', ''), '"', ''), "'\'", ''), '-', ' '), "')'", ''), '|', ''), ';', ''), '[', '');    
+
+We have to do the next queries as follows.  First from Events and Performances remove the html codes.  Then do everything else.  It is possible to include these as one statement but to cut down on testing did them in two statements for each field.  
+UPDATE Events
+  SET 
+      CommentCClean =
+REPLACE(REPLACE(CommentC, '<i>', ''), "</i>", ''); 
+      
+UPDATE Performances
+  SET 
+      CommentPClean = 
+REPLACE(REPLACE(CommentP, '<i>', ''), "</i>", '');      
+
+UPDATE Events
+  SET 
+      CommentCClean = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(CommentCClean, ',', ''), "'", ''), '!', ''), '+', ''), '%', ''), '#', ''), '&', ''), '*', ''), ')', ''), '$', ''), '@', ''), '~', ''), '?', ''), '{', ''), '}', ''), '^', ''), '<', ''), '>', ''), ':', ''), '/', ''), '=', ''), ']', ''), '_', ' '), '`', ''), '.', ''), '"', ''), "'\'", ''), '-', ' '), "')'", ''), '|', ''), ';', ''), '[', ''); 
+
+UPDATE Performances
+  SET 
+      CommentPClean = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(CommentPClean, ',', ''), "'", ''), '!', ''), '+', ''), '%', ''), '#', ''), '&', ''), '*', ''), ')', ''), '$', ''), '@', ''), '~', ''), '?', ''), '{', ''), '}', ''), '^', ''), '<', ''), '>', ''), ':', ''), '/', ''), '=', ''), ']', ''), '_', ' '), '`', ''), '.', ''), '"', ''), "'\'", ''), '-', ' '), "')'", ''), '|', ''), ';', ''), '[', '');
