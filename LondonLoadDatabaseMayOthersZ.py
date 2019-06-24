@@ -193,7 +193,7 @@ def getAContent(e):
 #         Take out ^ carrot character from the cast if it exists
         work = work.replace('^','')
         cast = cast.replace('^','')
-        work = string.capwords(work)  #Take off all caps if the work is all caps
+#        work = string.capwords(work)  #Take off all caps if the work is all caps
 
         return (work,cast)
     except:
@@ -269,8 +269,19 @@ def getRoles(performanceID,cast):
 
 #                    character = cast[c:i]    #character
 
+#   NOTE: TO MYSELF  Took out the next two but added the next five sentences to fix a bug  6/11/2019
+#                    if "but " in character:      #Take out but in character list.
+#                        character = character[4:]    #so take the first 4 character out.
+
                     if "but " in character:      #Take out but in character list.
-                        character = character[4:]    #so take the first 4 character out.
+                        if character [:6] == ", but ":
+                            character = character[5:]#so take the first 5 characters out.
+                        elif character[11:19] == "but with":
+                            character = character[20:] #take out the first 15 characters.
+                        elif character[11:14] == "but":
+                            character = character[14:]
+                        else:
+                            character = character[4:]
 
                     if "(" in character:             #Take out comments that are embedded in parentheses within the cast list.
                         s=character.index("(")
@@ -341,6 +352,13 @@ def getRoles(performanceID,cast):
     if len(castlistcomment) > 0:
         if castlistcomment[0] == ",":
             castlistcomment = castlistcomment[1:]
+
+    if "hathi" in castlistcomment:
+        castlistcomment = castlistcomment.replace(".hathi", "")
+
+    if ".hathi" in commentP:
+        commentP = commentP.replace(".hathi", "")
+
 
     return (character,performers,commentP,castlistcomment)
 
@@ -541,10 +559,10 @@ with open('LondonFinal.txt','r') as infile: #this file created from the LondonFo
             event_order = -1
 
         if re.search(r'^\*z',entry):
-            zrecord[event_counter] = entry
+            zrecord[event_counter] = entry[2:]
 
         if re.search(r'^\*x',entry):
-            xrecord[event_counter] = entry
+            xrecord[event_counter] = entry[2:]
 
         # separate out the type of entry [p,a,m,s,etc.] and the rest of the line's content
         if entry[:2] != "*z":
@@ -590,6 +608,7 @@ with open('LondonFinal.txt','r') as infile: #this file created from the LondonFo
 
             character, performers, commentP, castlistcomment = getRoles(performance_counter,cast)
 
+
 #                Take out the ^ carrot character. It is no longer needed and was cluttering the output  September 2018
             castlistcomment = castlistcomment.replace('^','')
             content = content.replace('^','')
@@ -615,6 +634,9 @@ with open('LondonFinal.txt','r') as infile: #this file created from the LondonFo
 #                    performances.append((performance_counter,event_counter,event_order,entry_type,"",castlistcomment,content[:-1],commentP)) #Take off |hathi|
 
         elif entry_type == 'c': #for *c (comments), add the content directly to the entry itself)
+            if "hathi." in content:
+                content = content.replace("hathi.", "")
+
             if content[-7:] == "hathi.":
                 comments[event_counter] = content[:-7]  #If hathi record strip out since it was included as it's own field above
             else:
