@@ -15,9 +15,8 @@ Those interested in the London Stage Database project in its *current form* can 
 * `Process_of_Cleaning_and_Loading_London_Data.txt` 
     - This README documents the steps required for taking input files recovered from Lawrence through the various parsing and data cleanup programs.  
 * `London_ERD_Diagram_September_26_2018.pdf` 
-    - a proposed entity-relationship diagram mapping the relationship between
-    tables in the SQL version of the LSDB. 
-    - these constraints were not formalized in the database table definitions at the time
+    - An entity-relationship diagram mapping proposed relationships between tables in the SQL version of the LSDB. 
+    - These constraints were not applied at the time. Different contstraints were added later.
 
 ### Code
 
