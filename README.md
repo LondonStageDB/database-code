@@ -5,7 +5,7 @@
 This repository archives code and intermediate data files used for cleaning, parsing, modifying, and loading data into the London Stage Database between 2013 and 2019. 
 This code represents a phase of the project's development and is no longer in use.
 
-The sequence of Python files transforms the data from the London Stage Information Bank into a relational database. The resulting text files were supplemented with OCRed data collected from HathiTrust copies of the [*The London stage, 1660-1800*](https://catalog.hathitrust.org/Record/000200105) by Emma Hallock.
+The sequence of Python files transforms the data from the London Stage Information Bank into a relational database. The resulting text files were supplemented with OCRed data collected from HathiTrust copies of the [*The London Stage, 1660-1800*](https://catalog.hathitrust.org/Record/000200105) by Mattie Burkert and Lauren Liebe.
 
 Those interested in the London Stage Database project in its *current form* can search the database on the [project website](https://londonstagedatabase.uoregon.edu/) or download the [underlying SQL database](https://github.com/LondonStageDB/data/releases). 
 
@@ -13,10 +13,15 @@ Those interested in the London Stage Database project in its *current form* can 
 
 ### Documentation
 * `Process_of_Cleaning_and_Loading_London_Data.txt` 
-    - This README documents the steps required for taking input files recovered from Lawrence through the various parsing and data cleanup programs.  
+    - This README documents the steps required for taking input files recovered from Lawrence
+      through the various parsing and data cleanup programs.  
 * `London_ERD_Diagram_September_26_2018.pdf` 
-    - An entity-relationship diagram mapping proposed relationships between tables in the SQL version of the LSDB. 
-    - These constraints were not applied at the time. Different contstraints were added later.
+    - An entity-relationship diagram created by Todd Hugie, mapping implicit relationships
+      between tables in the SQL version of the LSDB.
+    - These relationships were not implemented as formal database constraints at the time.
+      Doing so was unnecessary as that version of the database was not designed for ongoing,
+      active modification outside of the initial funded period of performance. 
+    - Constraints were added in 2025 to support resumption of active development work.
 
 ### Code
 
