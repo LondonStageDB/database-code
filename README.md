@@ -26,11 +26,11 @@ Those interested in the London Stage Database project in its *current form* can 
 ### Code
 
 * `NPK_date_conversion_with_comments.py`
-    - Corrects NPK dates for the London Stage Project text files
+    - Corrects NPK dates for the London Stage Project text files.
 * `ocr_fix_2-21-18_with_comments.py`
-    - Corrects OCR text in London Stage Project text files
+    - Corrects OCR text in London Stage Project text files.
 * `LondonLoadDatabaseMayOthersZ.py`
-    - Cleans London Stage Project text files in preparation for insertion in to a SQL database as tables
+    - Cleans London Stage Project text files in preparation for insertion in to a SQL database as tables.
 * `LondonFormatEverythingMay112019.py`
     - Processing pipeline used to construct `modified_everything_07-03-19_withOrigDataHathiFixed.txt`
 * `Ladder.py` 
@@ -38,14 +38,14 @@ Those interested in the London Stage Database project in its *current form* can 
 
 ### Data
 * `data/LondonFinal.txt`
-    - The 2019 final version of the London Stage Project in `.txt` form, used to construct the SQL database
-    - Migrated from the LondonStageDB/data repository in 2025
+    - The 2019 final version of the London Stage Project in `.txt` form, used to construct the SQL database.
+    - Migrated from the LondonStageDB/data repository in 2025.
 * `data/modified_everything_07-03-19_withOrigDataHathiFixed.txt`
-    - An intermediate stage in the project with OCRed data from HathiTrust versions of the *The London stage, 1660-1800*
-    - Migrated from the LondonStageDB/data repository in 2025
+    - An intermediate stage in the project with OCRed data from HathiTrust versions of the *The London stage, 1660-1800*.
+    - Migrated from the LondonStageDB/data repository in 2025.
 *  `data/2015_concatenated_LSP_files_from_Lawrence.txt`
-    - A 2015 file of concatenated entries recovered from the London Stage Information Bank
-    - Migrated from the LondonStageDB/data repository in 2025
+    - A 2015 file of concatenated entries recovered from the London Stage Information Bank.
+    - Migrated from the LondonStageDB/data repository in 2025.
 
 ### Works Table Development
 A folders of plain-text notes, `.docx` files, and intermediate `.xlsx` spreadsheets
