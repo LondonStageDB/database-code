@@ -48,7 +48,7 @@ Those interested in the London Stage Database project in its *current form* can 
     - Migrated from the LondonStageDB/data repository in 2025.
 
 ### Works Table Development
-A folders of plain-text notes, `.docx` files, and intermediate `.xlsx` spreadsheets
+A folder of plain-text notes, `.docx` files, and intermediate `.xlsx` spreadsheets
 documenting the development of the Works table by Emma Hallock in 2019.
 
 This folder was archived in 2025.
@@ -72,3 +72,47 @@ This folder was archived in 2025.
 * `works/Works Table Final EH 3.15.19 MB 6.26.19.xlsx`
 * `works/Works Table Final EH 3.15.19.xlsx`
     
+### London Stage Database PDF Splitting
+This folder contains the scripts and intermediate JSON files to slice the original PDFs by date and key the slices to events in the database.
+
+This folder was archived in 2025.
+
+#### Documentation
+* `pdf_split/README.md`
+    - Documents the Javascript files and intermediate inputs used to generate split PDFs.
+
+#### Code
+
+* `pdf_split/ImportToDB.js`
+* `pdf_split/PDF2JSON.js`
+* `pdf_split/SplitPDF.js` 
+* `pdf_split/webpack.config.js`
+* `pdf_split/ZDPDFSplit.js`
+* `pdf_split/ZeroDates.js`
+* `pdf_split/ZeroDatesFilenames.js`
+
+#### Data
+
+* `pdf_split/pages/dates-final_1659-1700.json`	
+* `pdf_split/pages/dates-final_1729-1736.json`	
+* `pdf_split/pages/dates-final_1755-1767.json`	
+* `pdf_split/pages/dates-final_1783-1792.json`
+* `pdf_split/pages/dates-final_1700-1717.json`	
+* `pdf_split/pages/dates-final_1736-1747.json`	
+* `pdf_split/pages/dates-final_1767-1776.json`	
+* `pdf_split/pages/dates-final_1792-1800.json`
+* `pdf_split/pages/dates-final_1717-1729.json`	
+* `pdf_split/pages/dates-final_1747-1755.json`	
+* `pdf_split/pages/dates-final_1776-1783.json`	
+* `pdf_split/pages/zero-dates-filenames.json`
+* `pdf_split/dates/working-dates_1659-1700.json`	
+* `pdf_split/dates/working-dates_1729-1736.json`
+* `pdf_split/dates/working-dates_1755-1767.json`	
+* `pdf_split/dates/working-dates_1783-1792.json`
+* `pdf_split/dates/working-dates_1700-1717.json`	
+* `pdf_split/dates/working-dates_1736-1747.json`	
+* `pdf_split/dates/working-dates_1767-1776.json`	
+* `pdf_split/dates/working-dates_1792-1800.json`
+* `pdf_split/dates/working-dates_1717-1729.json`	
+* `pdf_split/dates/working-dates_1747-1755.json`	
+* `pdf_split/dates/working-dates_1776-1783.json`
