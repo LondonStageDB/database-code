@@ -7,7 +7,7 @@ This code represents a phase of the project's development and is no longer in us
 
 The sequence of Python files transforms the data from the London Stage Information Bank into a relational database. The resulting text files were supplemented with OCRed data collected from HathiTrust copies of the [*The London Stage, 1660-1800*](https://catalog.hathitrust.org/Record/000200105) by Mattie Burkert and Lauren Liebe.
 
-Those interested in the London Stage Database project in its *current form* can search the database on the [project website](https://londonstagedatabase.uoregon.edu/) or download the [underlying SQL database](https://github.com/LondonStageDB/data/releases). 
+Those interested in the London Stage Database project in its *current form* can search the database on the [project website](https://londonstagedatabase.uoregon.edu/) or download the [underlying SQL database](https://github.com/LondonStageDB/data). 
 
 ## Files
 
