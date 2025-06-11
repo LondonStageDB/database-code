@@ -73,7 +73,7 @@ This folder was archived in 2025.
 * `works/Works Table Final EH 3.15.19.xlsx`
     
 ### London Stage Database PDF Splitting
-This folder contains the scripts and intermediate JSON files to slice the original PDFs by date and key the slices to events in the database.
+This folder contains the scripts and intermediate JSON files to slice the original PDFs by date and key the slices to events in the database. To download the PDFs processed in this pipeline, [visit the original PDFs as scanned by the University of Michigan available on HathiTrust](https://catalog.hathitrust.org/Record/000200105).
 
 This folder was archived in 2025.
 
