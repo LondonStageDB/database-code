@@ -116,3 +116,13 @@ This folder was archived in 2025.
 * `pdf_split/dates/working-dates_1717-1729.json`	
 * `pdf_split/dates/working-dates_1747-1755.json`	
 * `pdf_split/dates/working-dates_1776-1783.json`
+  
+### London Stage Database Website Legacy Search
+This folder contains the PHP scripts used for the SQL legacy search, which was replaced by a Sphinx Search implementation.
+This folder was archived in 2025.
+
+#### Code
+* `legacy_search/results.php`
+* `legacy_search/get_all_csv.php`
+* `legacy_search/get_all_xml.php` 
+* `legacy_search/get_all_json.php`
